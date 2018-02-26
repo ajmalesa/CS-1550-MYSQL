@@ -65,7 +65,7 @@ from
     on e.emp_no = de.emp_no
     join departments d
     on de.dept_no = d.dept_no
-where 
+where
 	first_name = 'Olivera' and 
     last_name = 'Baek' and
 	s.to_date=(select MAX(to_date) from salaries)
