@@ -66,4 +66,56 @@ where REP_NUM in
 
 -- Henry Books
 -- Question 1
+-- Results in no results because all branches have at least one paperback book
+-- This can be tested by changing the end of line 83 to = 'Y'
+select BRANCH_NAME
+from BRANCH b
+where b.BRANCH_NAME not in 
+(
+	select BRANCH_NAME
+	from 
+		BRANCH b1
+		join INVENTORY i 
+		on b1.BRANCH_NUM = i.BRANCH_NUM
+		join BOOK bo 
+		on i.BOOK_CODE = bo.BOOK_CODE
+	where 
+		bo.PAPERBACK = 'N'
+);
  
+-- Question 2 
+select A2.AUTHOR_FIRST, A2.AUTHOR_LAST
+from AUTHOR A2
+	join WROTE W2
+	on W2.AUTHOR_NUM = A2.AUTHOR_NUM
+where W2.BOOK_CODE in 
+(
+	select B.BOOK_CODE
+	from 
+		INVENTORY I
+		join BOOK B
+		on I.BOOK_CODE = B.BOOK_CODE
+		join WROTE W
+		on B.BOOK_CODE = W.BOOK_CODE
+		join AUTHOR A
+		on W.AUTHOR_NUM = A.AUTHOR_NUM
+	where 
+		(AUTHOR_FIRST = 'TRUDDI' or AUTHOR_FIRST = 'SEAMUS')
+	group by BOOK_CODE
+	order by sum(ON_HAND)
+)
+limit 1;
+
+-- Question 3
+SELECT TITLE, CITY, COUNT(TITLE)
+FROM 
+	BOOK B
+    JOIN PUBLISHER P
+    ON B.PUBLISHER_CODE = P.PUBLISHER_CODE
+    JOIN WROTE W
+    ON B.BOOK_CODE = W.BOOK_CODE
+WHERE 
+	CITY != 'NEW YORK' 
+GROUP BY TITLE, CITY
+HAVING COUNT(TITLE) >= 2
+;
