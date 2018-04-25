@@ -138,10 +138,47 @@ select * from artisttrack;
 -- addplaylist procedure
 drop procedure if exists addplaylist;
 delimiter \\
-create procedure medialibrary.addplaylist (ptrack varchar(50), pplaylist varchar(50))
+create procedure medialibrary.addplaylist (ptrack varchar(50), plist varchar(100))
 begin 
-	
+	declare counter int;
+    declare lastvalue varchar(100);
+    declare priorvalue varchar(100);
+    declare newplaylistid int;
+    declare newtrackid int;
+    
+    set priorvalue = '';
+    set lastvalue = trim(substring_index(plist, ',', -1));
+    
+    set counter = 1;
+    
+    -- Iterate through all values in playlist passed, seperated by commas, and add each playlist that does not yet
+    -- exist in the playlist table to the playlist table. 
+    while lastvalue != priorvalue
+    do 
+		set priorvalue = trim(substring_index(substring_index(plist, ',', counter), ',', -1));
+			
+		-- The actuall adding of the playlists to the playlist table
+        if not exists(select * from playlists p where p.playlist = priorvalue)
+        then
+			insert into playlists (playlist)
+            values (priorvalue);
+		end if;
+        
+        -- Connect track to playlist in the bridge table, 'trackplaylists'
+        set newplaylistid = (select playlistid from playlists p where priorvalue = playlist);
+        set newtrackid = (select trackid from tracks t where t.title = ptrack);
+        if not exists (select * from trackplaylists tp where tp.trackid = newtrackid and tp.playlistid = newplaylistid)
+		then
+			insert into trackplaylists values (newtrackid, newplaylistid); 
+		end if;
+        
+        set counter = counter + 1;
+	end while;
 
 end \\
 delimiter ;
 
+call medialibrary.addplaylist ('Number 1', 'P1, jammy jamers, p9 , p4, 5, g, a, h, e, s, z, P3');
+select * from trackplaylists;
+
+-- 
