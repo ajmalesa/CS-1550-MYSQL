@@ -14,7 +14,7 @@ CREATE TABLE CurrentEmployeeInfo
 	title varchar(50)
 );
 
-insert ignore into employees.CurrentEmployeeInfo (emp_no, birth_date, first_name, last_name, gender, hire_date, dept_no, salary, title)
+insert into employees.CurrentEmployeeInfo (emp_no, birth_date, first_name, last_name, gender, hire_date, dept_no, salary, title)
 select  e.emp_no, e.birth_date, e.first_name, e.last_name, e.gender, e.hire_date, de.dept_no, s.salary, t.title
 from employees e 
 	join dept_emp de 
@@ -36,7 +36,7 @@ where
 		on e1.emp_no = s1.emp_no
         where t1.to_date = '9999-01-01'
         and s1.to_date = '9999-01-01' 
-	
+        and de1.to_date = '9999-01-01'
 	)
 -- 	current_date() between s.from_date and s.to_date 
 -- 	and s.to_date = '9999-01-01'

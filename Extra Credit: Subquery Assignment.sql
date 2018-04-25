@@ -64,6 +64,7 @@ where REP_NUM in
 	order by MIN(CREDIT_LIMIT - BALANCE)
 );
 
+
 -- Henry Books
 -- Question 1
 -- Results in no results because all branches have at least one paperback book
