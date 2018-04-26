@@ -181,4 +181,45 @@ delimiter ;
 call medialibrary.addplaylist ('Number 1', 'P1, jammy jamers, p9 , p4, 5, g, a, h, e, s, z, P3');
 select * from trackplaylists;
 
--- 
+-- addtags procedure 
+drop procedure if exists addtags;
+delimiter \\
+create procedure medialibrary.addtags (ttrack varchar(50), tlist varchar(100))
+begin 
+	declare counter int;
+    declare lastvalue varchar(100);
+    declare priorvalue varchar(100);
+    declare newtagid int;
+    declare newtrackid int;
+    
+    set priorvalue = '';
+    set lastvalue = trim(substring_index(tlist, ',', -1));
+    
+    set counter = 1;
+    
+    while lastvalue != priorvalue
+    do
+		set priorvalue = trim(substring_index(substring_index(tlist, ',', counter), ',', -1));
+        
+        if not exists (select * from tags t where t.tag = priorvalue)
+        then 
+			insert into medialibrary.tags(tag) 
+            values (priorvalue);
+        end if;
+        
+        set newtagid = (select tagid from tags t where t.tag = priorvalue);
+        set newtrackid = (select trackid from tracks t where t.title = ttrack);
+        
+        if not exists (select * from tracktags tt where tt.trackid = newtrackid and tt.tagid = newtagid)
+		then
+			insert into tracktags values (newtrackid, newtagid); 
+		end if;
+        
+        set counter = counter + 1;
+    end while;
+    
+end \\
+delimiter ;
+
+call medialibrary.addtags('Dream Lover', 'Weird, Dippy, Actually okayish');
+select * from tags;
